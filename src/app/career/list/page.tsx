@@ -71,8 +71,10 @@ export default function CareerListPage() {
   };
 
   const handleDoTest = () => {
-    // TODO: Gọi API ONET sau
-    alert('Tính năng làm bài test ONET sẽ được cập nhật sớm!');
+    const testUrl = process.env.NEXT_PUBLIC_TEST_URL || '';
+    const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL || '';
+    
+    window.location.href = `${testUrl}?returnUrl=${encodeURIComponent(returnUrl)}/dashboard`;
   };
 
   const handleSkipTest = () => {
