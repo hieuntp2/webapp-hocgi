@@ -53,7 +53,7 @@ export default function LocationsPage() {
       
       <div className="px-4 py-6">
         {/* Map */}
-        <img src="/maptoantruong.jpg" alt="Bản đồ toàn trường" className="w-full object-cover rounded-2xl mb-6 shadow-card" />
+        <img src="/maptoantruong.png?v=2" alt="Bản đồ toàn trường" className="w-full object-cover mb-6 shadow-card" />
 
         {/* Quick Access */}
         <div className="mb-6">
