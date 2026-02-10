@@ -18,7 +18,7 @@ export default function MusicPage() {
       
       <div className="px-4 py-6">
         {/* Map */}
-        <img src="/Khu vực ÂM NHẠC.png" alt="Khu vực âm nhạc" className="w-full object-cover mb-6" />
+        <img src="/music.png" alt="Khu vực âm nhạc" className="w-full object-cover mb-6" />
 
         {/* Schedule */}
         <h3 className="text-lg font-bold text-neutral-900 mb-3">Lịch biểu diễn</h3>
