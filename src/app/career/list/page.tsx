@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { checkInService } from '@/services/api/checkIn';
@@ -32,6 +32,24 @@ export default function CareerListPage() {
   const [showSuggestion, setShowSuggestion] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load existing data on mount
+  useEffect(() => {
+    const loadCustomFields = async () => {
+      try {
+        const response = await checkInService.getCustomFields();
+        if (response.success && response.data) {
+          setSelectedField(response.data.customFieldIds || '');
+          setCustomCareer(response.data.customJob || '');
+        }
+      } catch (err) {
+        // Ignore error - just means no data yet
+        console.log('No custom fields data yet');
+      }
+    };
+
+    loadCustomFields();
+  }, []);
 
   const handleContinue = async () => {
     if (!isValid) return;

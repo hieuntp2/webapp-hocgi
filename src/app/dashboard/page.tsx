@@ -29,8 +29,15 @@ export default function DashboardPage() {
         if (statusResponse.success && statusResponse.data) {
           setUserStatus(statusResponse.data);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch user status:', error);
+        // Check for 401 error
+        if (error?.response?.status === 401 || error?.status === 401) {
+          const ssoUrl = process.env.NEXT_PUBLIC_SSO_URL;
+          const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL;
+          window.location.href = `${ssoUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`;
+          return;
+        }
       }
 
       try {
@@ -39,8 +46,15 @@ export default function DashboardPage() {
         if (response.success && response.data?.order != null) {
           setLuckyNumber(String(response.data.order).padStart(4, '0'));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch lucky number:', error);
+        // Check for 401 error
+        if (error?.response?.status === 401 || error?.status === 401) {
+          const ssoUrl = process.env.NEXT_PUBLIC_SSO_URL;
+          const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL;
+          window.location.href = `${ssoUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`;
+          return;
+        }
         // Fallback: generate from user id if available
         if (user?.luckyNumber) {
           setLuckyNumber(user.luckyNumber);

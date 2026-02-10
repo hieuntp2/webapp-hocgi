@@ -10,8 +10,10 @@ export default function CareerPage() {
   const router = useRouter();
 
   const handleNotSure = () => {
-    // TODO: Gọi API ONET sau
-    alert('Tính năng làm bài test ONET sẽ được cập nhật sớm!');
+    const testUrl = process.env.NEXT_PUBLIC_TEST_URL || '';
+    const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL || '';
+    
+    window.location.href = `${testUrl}?returnUrl=${encodeURIComponent(returnUrl)}/dashboard`;
   };
 
   return (
@@ -52,7 +54,7 @@ export default function CareerPage() {
           </Button>
           
           <Button
-            variant="gray"
+            variant="outline"
             size="lg"
             className="w-full"
             onClick={handleNotSure}

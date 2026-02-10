@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
@@ -43,6 +43,30 @@ export default function MajorPage() {
   const [customMajor, setCustomMajor] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load existing data on mount
+  useEffect(() => {
+    const loadCustomFields = async () => {
+      try {
+        const response = await checkInService.getCustomFields();
+        if (response.success && response.data) {
+          const customMajorValue = response.data.customMajor || '';
+          setCustomMajor(customMajorValue);
+          // Check if customMajor matches any in allMajors dropdown
+          const matchedMajor = allMajors.find(m => m.label === customMajorValue);
+          if (matchedMajor) {
+            setSelectedMajor(matchedMajor.value);
+            setCustomMajor('');
+          }
+        }
+      } catch (err) {
+        // Ignore error - just means no data yet
+        console.log('No custom fields data yet');
+      }
+    };
+
+    loadCustomFields();
+  }, []);
 
   // Handle quick select popular major
   const handleQuickSelect = (majorName: string) => {

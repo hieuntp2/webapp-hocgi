@@ -31,6 +31,12 @@ export interface CustomMajorInput {
   customMajor: string;
 }
 
+export interface UserCustomFieldsModel {
+  customFieldIds: string;
+  customJob: string;
+  customMajor: string;
+}
+
 export const checkInService = {
   // Get current user's check-in info
   async getCurrentUserCheckIn(): Promise<ApiResponse<UserCheckInInfo>> {
@@ -50,6 +56,11 @@ export const checkInService = {
   // Post offline information (psychology questions)
   async postOfflineInfor(data: UserOfflineInforInput): Promise<ApiResponse<null>> {
     return apiClient.patch('/UserCheckIn/offline-infor', data as unknown as Record<string, unknown>);
+  },
+
+  // Get custom fields
+  async getCustomFields(): Promise<ApiResponse<UserCustomFieldsModel>> {
+    return apiClient.get('/UserCheckIn/offline-infor/custom-fields');
   },
 
   // Set custom field and job
