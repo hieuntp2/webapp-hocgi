@@ -49,7 +49,7 @@ export default function LocationsPage() {
 
   return (
     <div className="min-h-screen bg-background-secondary">
-      <Header title="Bản đồ & Địa điểm" onBack={() => router.push('/dashboard')} />
+      <Header title="Bản đồ" onBack={() => router.push('/dashboard')} />
       
       <div className="px-4 py-6">
         {/* Map */}
