@@ -42,6 +42,17 @@ class ApiClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, config);
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - redirect to login SSO
+      if (response.status === 401) {
+        if (typeof window !== 'undefined') {
+          // Clear auth token
+          localStorage.removeItem('authToken');
+          // Redirect to login page which will handle SSO redirect
+          window.location.href = '/login';
+        }
+        throw new Error('Unauthorized - Redirecting to login');
+      }
+
       const error = await response.json().catch(() => ({ message: 'Network error' }));
       throw new Error(error.message || `HTTP error! status: ${response.status}`);
     }
