@@ -13,9 +13,16 @@ const SSO_RETURN_URL = `${process.env.NEXT_PUBLIC_SSO_RETURN_URL}/login`;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useApp();
+  const { login, state } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!state.isLoading && state.isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [state.isLoading, state.isAuthenticated, router]);
 
   useEffect(() => {
     const readParams = (raw: string) => {
@@ -72,6 +79,11 @@ export default function LoginPage() {
     const url = `${SSO_URL}?returnUrl=${encodeURIComponent(returnUrl)}`;
     window.location.href = url;
   };
+
+  // Show nothing while checking authentication or if already authenticated
+  if (state.isLoading || state.isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background-primary">

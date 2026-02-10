@@ -9,8 +9,12 @@ export interface CheckInRecord {
 }
 
 export interface UserCheckInInfo {
-  order: number;
-  checkIns: CheckInRecord[];
+  userId: string;
+  roomType: number;
+  deskId: string;
+  created: string;
+  order?: number;
+  universityName: string;
 }
 
 export interface CheckInInput {

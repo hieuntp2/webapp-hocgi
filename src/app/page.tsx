@@ -1,12 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui';
+import { useApp } from '@/contexts/AppContext';
 
 export default function LandingPage() {
   const router = useRouter();
+  const { state } = useApp();
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!state.isLoading && state.isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [state.isLoading, state.isAuthenticated, router]);
+
+  // Show nothing while checking authentication or if already authenticated
+  if (state.isLoading || state.isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background-primary gradient-subtle px-6">
