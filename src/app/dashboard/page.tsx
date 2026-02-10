@@ -18,6 +18,9 @@ export default function DashboardPage() {
   const [, setScanStatus] = useState(0);
   const [showSchoolDialog, setShowSchoolDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Fetch user status and lucky number from API
   useEffect(() => {
@@ -71,6 +74,81 @@ export default function DashboardPage() {
       fetchUserData();
     }
   }, [state.isAuthenticated, user?.id, user?.luckyNumber]);
+
+  // Handle QR scan result
+  useEffect(() => {
+    const handleScanResult = async () => {
+      if (!scanResult) return;
+
+      try {
+        setIsLoading(true);
+        setShowScanner(false);
+        
+        // Parse QR URL to get roomType and deskId
+        const url = new URL(scanResult);
+        const roomType = parseInt(url.searchParams.get('roomId') || '0');
+        const deskId = url.searchParams.get('tableId') || '';
+
+        if (!roomType) {
+          alert('QR code không hợp lệ');
+          setScanResult(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Call check-in API
+        const response = await checkInService.postUserCheckIn({
+          roomType,
+          deskId: deskId || undefined,
+        });
+
+        if (response.success && response.data) {
+          // Show success message based on roomType
+          let message = '';
+          switch (response.data.roomType) {
+            case 4:
+              message = `Đã quét mã QR trường: ${response.data.universityName}`;
+              break;
+            case 3:
+              message = 'Đã check-in phòng Hướng Nghiệp';
+              break;
+            case 2:
+              message = 'Đã check-in phòng Tư vấn tâm lý';
+              break;
+            case 5:
+              message = 'Đã quét mã Check-out';
+              break;
+            default:
+              message = 'Check-in thành công!';
+          }
+
+          setSuccessMessage(message);
+          setShowSuccessMessage(true);
+          
+          // Refresh user status
+          const statusResponse = await progressService.getUserStatus();
+          if (statusResponse.success && statusResponse.data) {
+            setUserStatus(statusResponse.data);
+          }
+
+          // Hide success message after 3 seconds
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+          }, 3000);
+        }
+
+        setScanResult(null);
+      } catch (error: any) {
+        console.error('Check-in failed:', error);
+        alert('Có lỗi xảy ra khi check-in. Vui lòng thử lại.');
+        setScanResult(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleScanResult();
+  }, [scanResult]);
 
   // Calculate completed tasks based on user status from API
   const completedTasks = [
@@ -271,6 +349,7 @@ export default function DashboardPage() {
               scanner={showScanner}
               setShowScanner={setShowScanner}
               setScanStatus={setScanStatus}
+              onScanSuccess={(result: string) => setScanResult(result)}
             />
           </div>
           <button
@@ -280,6 +359,37 @@ export default function DashboardPage() {
           >
             Đóng
           </button>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[80] animate-bounce">
+          <div className="bg-gradient-to-br from-green-400 to-green-600 text-white rounded-2xl shadow-2xl p-6 max-w-sm mx-4 border-2 border-green-200">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg mb-1">Thành công!</h3>
+                <p className="text-sm text-white/90">{successMessage}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

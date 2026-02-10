@@ -12,13 +12,13 @@ interface Noti {
 export default function Scanner(
   { scanner, 
     setShowScanner, 
-    setScanStatus
-    // setShowSuccess
+    setScanStatus,
+    onScanSuccess
   }: {
     scanner: boolean,
     setShowScanner: React.Dispatch<React.SetStateAction<boolean>>,
     setScanStatus: React.Dispatch<React.SetStateAction<number>>,
-    // setShowSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+    onScanSuccess?: (result: string) => void,
   }) {
     const videoElementRef = useRef(null);
     const searchParams = useSearchParams();
@@ -63,7 +63,13 @@ export default function Scanner(
         (result) => {
           void queryString(result.data);
           setScannedUrl(result.data);
-          window.location.href = result.data
+          
+          // If onScanSuccess callback is provided, use it instead of direct redirect
+          if (onScanSuccess) {
+            onScanSuccess(result.data);
+          } else {
+            window.location.href = result.data;
+          }
         },
         {
             returnDetailedScanResult: true,
