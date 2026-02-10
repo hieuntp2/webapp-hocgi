@@ -341,54 +341,11 @@ export default function PsychologyPage() {
           <h2 className="text-xl font-bold text-center text-neutral-900 mb-1 font-heading">HƯỚNG DẪN ĐẾN</h2>
           <p className="text-center text-neutral-500 mb-6">Phòng Tham Vấn Tâm Lý</p>
 
-          {/* Location Info */}
-          <div className="bg-background-primary rounded-2xl p-4 shadow-card border border-neutral-100 mb-4">
-            <div className="flex items-center gap-2 justify-center">
-              <div className="w-6 h-6 rounded-full bg-primary-lighter flex items-center justify-center">
-                <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-              </div>
-              <span className="font-bold text-neutral-900">VỊ TRÍ: Dãy A - Phòng 101</span>
-            </div>
-          </div>
+         
 
-          {/* Map placeholder */}
-          <div className="bg-background-primary rounded-2xl p-4 shadow-card border border-neutral-100 mb-4">
-            <div className="relative bg-accent-lighter rounded-xl h-40 flex items-center justify-center overflow-hidden">
-              {/* Navigation arrow */}
-              <div className="text-primary">
-                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                </svg>
-              </div>
-              <span className="absolute top-2 right-2 text-xs bg-background-primary px-2 py-1 rounded-full shadow-sm">
-                Bản đồ khuôn viên
-              </span>
-            </div>
-            
-            <div className="mt-4">
-              <h3 className="font-bold text-neutral-900 text-center mb-3 font-heading">BẢN ĐỒ HƯỚNG DẪN</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-primary" />
-                  <span>Cổng chính</span>
-                  <span className="text-primary font-medium">●</span>
-                </div>
-                <div className="flex items-center gap-2 text-neutral-500">
-                  <span className="ml-5">↓ 30m</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-success" />
-                  <span>Phòng 101</span>
-                  <span className="text-success font-medium">■</span>
-                </div>
-              </div>
-              <p className="text-center text-xs text-neutral-400 mt-3">
-                Khoảng cách: ~50m<br />
-                Thời gian đi bộ: 2 phút
-              </p>
-            </div>
+          {/* Map */}
+          <div className="mb-4">
+            <img src="/Khu vực TVTL.png" alt="Khu vực tư vấn tâm lý" className="w-full object-cover rounded-2xl" />
           </div>
 
           {/* Instructions */}

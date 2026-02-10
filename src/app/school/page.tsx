@@ -1,318 +1,152 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui';
 import { Header } from '@/components/layout/Header';
 
-// Mock school data with images
-const schools = [
-  { 
-    id: '1', 
-    name: 'Học viện Báo chí & Tuyên truyền', 
-    location: 'Hà Nội', 
-    ranking: 1,
-    image: '/AJC.jpg',
+// University data grouped by region
+const universities = [
+  {
+    region: 'TP Hồ Chí Minh',
+    schools: [
+      'Trường Đại học Công nghệ thông tin, ĐHQG-HCM (UIT)',
+      'Trường Đại học Bách khoa, ĐHQG-HCM (HCMUT)',
+      'Trường Đại học Khoa học XH và Nhân văn (USSH-HCM)',
+      'Trường Đại học Công thương (HUIT)',
+      'Trường ĐH Tài chính – Marketing (UFM)',
+      'ĐH Kinh tế TP.HCM (UEH)',
+      'Trường ĐH Giao thông vận tải HCM (UTH)',
+      'Học viện Hàng không (VAA)',
+      'Trường ĐH Sư phạm HCM (HCMUE)',
+      'Trường ĐH Kinh tế – Luật (UEL)',
+      'Đại học Ngoại thương – Cơ sở II',
+      'Đại học Fulbright Việt Nam',
+      'Viện ISB – Đại học Kinh tế TP.HCM',
+      'Trường ĐH Công nghệ Kỹ thuật TP.HCM',
+      'Trường Đại học Luật TP.HCM',
+      'Trường Đại học Ngân hàng TP.HCM',
+      'Học viện cán bộ HCMC',
+    ],
   },
-  { 
-    id: '2', 
-    name: 'Học viện Ngoại giao', 
-    location: 'Hà Nội', 
-    ranking: 2,
-    image: '/DAV.jpg',
+  {
+    region: 'Huế – Đà Nẵng',
+    schools: [
+      'Trường ĐH Kỹ thuật Y Dược Đà Nẵng',
+      'Trường ĐH Kinh tế ĐN (DUE)',
+      'Trường ĐH Ngoại ngữ, ĐH Huế (HUFLIS)',
+      'Trường ĐH Bách khoa ĐN (DUT)',
+      'Trường Đại học Ngoại ngữ Đà Nẵng',
+      'Trường Đại học Sư phạm Đà Nẵng',
+      'Trường Đại học Sư phạm Huế',
+      'Trường Đại học Y Dược – Huế',
+      'FPT Đà Nẵng',
+    ],
   },
-  { 
-    id: '3', 
-    name: 'ĐH Công nghệ Thông tin', 
-    location: 'TP.HCM', 
-    ranking: 3,
-    image: '/UIT.jpg',
+  {
+    region: 'Hà Nội',
+    schools: [
+      'Trường Khoa học liên ngành và Nghệ thuật, ĐHQGHN (SIS)',
+      'Học viện Tài chính (AOF)',
+      'Học viện Ngoại giao (DAV)',
+      'ĐH Kinh tế Quốc dân (NEU)',
+      'Trường Đại học Sư phạm Hà Nội (HNUE)',
+      'Đại học Bách khoa Hà Nội (HUST)',
+      'Trường Đại học Khoa học XH & Nhân văn – ĐHQGHN',
+      'Trường Đại học Thương mại (TMU)',
+      'Học viện Báo chí & Tuyên truyền (AJC)',
+    ],
   },
-  { 
-    id: '4', 
-    name: 'ĐH Kinh tế TP.HCM', 
-    location: 'TP.HCM', 
-    ranking: 4,
-    image: '/UEH.jpg',
+  {
+    region: 'Trung Quốc',
+    schools: [
+      'Đại học Công nghệ Bắc Kinh',
+      'Changsha University of Science and Technology',
+    ],
   },
-  { 
-    id: '5', 
-    name: 'ĐH Ngoại thương', 
-    location: 'Hà Nội', 
-    ranking: 5,
-    image: '/FTU.jpg',
-  },
-  { 
-    id: '6', 
-    name: 'ĐH Kinh tế Quốc dân', 
-    location: 'Hà Nội', 
-    ranking: 6,
-    image: '/NEU.jpg',
+  {
+    region: 'Úc',
+    schools: [
+      'Monash University',
+    ],
   },
 ];
 
 export default function SchoolPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
-  const [showQRModal, setShowQRModal] = useState(false);
-
-  const filteredSchools = schools.filter((school) =>
-    school.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    school.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const toggleSchool = (schoolId: string) => {
-    setSelectedSchools((prev) =>
-      prev.includes(schoolId) ? prev.filter((id) => id !== schoolId) : [...prev, schoolId]
-    );
-  };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#FFF3E0', paddingBottom: '100px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#FFF3E0', paddingBottom: '32px' }}>
       <Header 
         title="Chọn Trường" 
         onBack={() => router.push('/dashboard')}
-        rightAction={
-          <button
-            onClick={() => setShowQRModal(true)}
-            style={{ padding: '8px', borderRadius: '50%' }}
-          >
-            <svg style={{ width: '24px', height: '24px', color: 'white' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
-          </button>
-        }
       />
       
       <div style={{ padding: '16px' }}>
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
-          <svg style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: '#9CA3AF' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Tìm kiếm trường..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ 
-              width: '100%', 
-              paddingLeft: '48px', 
-              paddingRight: '16px', 
-              paddingTop: '12px', 
-              paddingBottom: '12px',
-              borderRadius: '12px', 
-              border: '2px solid #E5E7EB',
-              backgroundColor: 'white',
-              outline: 'none',
-              fontSize: '14px'
-            }}
-          />
-        </div>
+        {/* Map ĐSSV */}
+        <img src="/Khu vực ĐSSV.png" alt="Khu vực Đại sứ sinh viên" style={{ width: '100%', objectFit: 'cover', marginBottom: '16px', borderRadius: '12px' }} />
 
-        {/* QR Scan button */}
-        <button
-          onClick={() => router.push('/school/qr-scan')}
-          style={{ 
-            marginTop: '16px',
-            width: '100%', 
-            padding: '16px', 
-            background: 'linear-gradient(to right, #D32F2F, #FF6F00)',
-            borderRadius: '12px', 
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: '500',
-            boxShadow: '0 4px 12px rgba(211, 47, 47, 0.25)'
-          }}
-        >
-          <svg style={{ width: '24px', height: '24px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-          </svg>
-          <span>Quét QR để thêm trường</span>
-        </button>
-
-        {/* Selected count */}
-        {selectedSchools.length > 0 && (
-          <p style={{ marginTop: '16px', fontSize: '14px', color: '#6B7280' }}>
-            Đã chọn: <span style={{ fontWeight: '500', color: '#D32F2F' }}>{selectedSchools.length}</span> trường
-          </p>
-        )}
-
-        {/* School Grid - 2 columns */}
-        <div style={{ 
-          marginTop: '16px', 
-          background: 'linear-gradient(to bottom right, #FFEBEE, #FFF3E0)',
-          borderRadius: '16px', 
-          padding: '16px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.08)'
-        }}>
-          <h3 style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', color: '#D32F2F', marginBottom: '12px' }}>
-            Danh Sách Trường
+        {/* University List by Region */}
+        <div style={{ marginTop: '16px' }}>
+          <h3 style={{ textAlign: 'center', fontSize: '16px', fontWeight: 'bold', color: '#D32F2F', marginBottom: '16px' }}>
+            Danh Sách Trường Đại Học
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {filteredSchools.map((school) => (
-              <div
-                key={school.id}
-                onClick={() => toggleSchool(school.id)}
-                style={{ 
-                  backgroundColor: 'white',
-                  borderRadius: '12px', 
-                  padding: '8px',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  cursor: 'pointer',
-                  border: selectedSchools.includes(school.id) ? '2px solid #D32F2F' : '2px solid transparent'
-                }}
-              >
-                {/* Image */}
-                <div style={{ width: '100%', height: '80px', position: 'relative', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#F3F4F6' }}>
-                  <Image
-                    src={school.image}
-                    alt={school.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 200px"
-                    style={{ objectFit: 'cover' }}
-                  />
-                  {/* Selected checkmark */}
-                  {selectedSchools.includes(school.id) && (
+          
+          {universities.map((group, groupIndex) => (
+            <div key={groupIndex} style={{ marginBottom: '16px' }}>
+              {/* Region Header */}
+              <div style={{ 
+                background: 'linear-gradient(to right, #D32F2F, #FF6F00)',
+                borderRadius: '8px 8px 0 0',
+                padding: '10px 16px',
+              }}>
+                <h4 style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', margin: 0 }}>
+                  {group.region}
+                </h4>
+              </div>
+              
+              {/* Schools List */}
+              <div style={{ 
+                backgroundColor: 'white',
+                borderRadius: '0 0 8px 8px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}>
+                {group.schools.map((school, schoolIndex) => (
+                  <div 
+                    key={schoolIndex}
+                    style={{ 
+                      padding: '12px 16px',
+                      borderBottom: schoolIndex < group.schools.length - 1 ? '1px solid #E5E7EB' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
                     <div style={{ 
-                      position: 'absolute', 
-                      top: '8px', 
-                      right: '8px', 
                       width: '24px', 
                       height: '24px', 
                       borderRadius: '50%', 
-                      backgroundColor: '#D32F2F',
+                      backgroundColor: '#FFF3E0',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      flexShrink: 0,
                     }}>
-                      <svg style={{ width: '16px', height: '16px', color: 'white' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg style={{ width: '14px', height: '14px', color: '#FF6F00' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                       </svg>
                     </div>
-                  )}
-                  {/* Ranking badge */}
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '8px', 
-                    left: '8px', 
-                    padding: '2px 8px', 
-                    borderRadius: '9999px',
-                    backgroundColor: '#FF6F00', 
-                    color: 'white', 
-                    fontSize: '10px', 
-                    fontWeight: 'bold'
-                  }}>
-                    #{school.ranking}
+                    <span style={{ fontSize: '13px', color: '#1F2937', lineHeight: '1.4' }}>
+                      {school}
+                    </span>
                   </div>
-                </div>
-                
-                {/* School name */}
-                <p style={{ 
-                  marginTop: '8px', 
-                  fontSize: '11px', 
-                  textAlign: 'center', 
-                  color: '#1F2937', 
-                  fontWeight: '500',
-                  lineHeight: '1.3',
-                  height: '28px',
-                  overflow: 'hidden',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical'
-                }}>
-                  {school.name}
-                </p>
-                
-                {/* Location */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px', fontSize: '10px', color: '#6B7280' }}>
-                  <svg style={{ width: '12px', height: '12px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  </svg>
-                  {school.location}
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Bottom CTA */}
-      <div style={{ 
-        position: 'fixed', 
-        bottom: 0, 
-        left: 0, 
-        right: 0, 
-        padding: '16px', 
-        backgroundColor: 'white',
-        borderTop: '1px solid #E5E7EB'
-      }}>
-        <Button
-          variant="primary"
-          size="lg"
-          className="w-full"
-          onClick={() => router.push('/dashboard')}
-          disabled={selectedSchools.length === 0}
-        >
-          Hoàn thành ({selectedSchools.length} đã chọn)
-        </Button>
-      </div>
-
-      {/* QR Modal */}
-      <Modal isOpen={showQRModal} onClose={() => setShowQRModal(false)}>
-        <ModalHeader>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ 
-              width: '64px', 
-              height: '64px', 
-              margin: '0 auto 12px', 
-              borderRadius: '50%', 
-              backgroundColor: '#FFEBEE',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <svg style={{ width: '32px', height: '32px', color: '#D32F2F' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1F2937' }}>Quét mã QR</h2>
-          </div>
-        </ModalHeader>
-        <ModalBody>
-          <p style={{ fontSize: '14px', color: '#6B7280', textAlign: 'center' }}>
-            Quét mã QR tại gian hàng của trường để nhanh chóng thêm vào danh sách quan tâm
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full"
-            onClick={() => {
-              setShowQRModal(false);
-              router.push('/school/qr-scan');
-            }}
-          >
-            Mở máy quét
-          </Button>
-          <Button
-            variant="ghost"
-            size="lg"
-            className="w-full"
-            onClick={() => setShowQRModal(false)}
-          >
-            Để sau
-          </Button>
-        </ModalFooter>
-      </Modal>
     </div>
   );
 }
+

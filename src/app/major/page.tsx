@@ -284,62 +284,15 @@ export default function MajorPage() {
         />
         
         <div className="px-4 py-6">
-          {/* Compass Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center shadow-warm">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </div>
-          </div>
+         
 
           {/* Title */}
           <h2 className="text-xl font-bold text-center text-neutral-900 mb-1 font-heading">HƯỚNG DẪN ĐẾN</h2>
           <p className="text-center text-neutral-500 mb-6">Phòng định hướng nghề nghiệp</p>
 
-          {/* Location Info */}
-          <div className="bg-background-primary rounded-2xl p-4 shadow-card border border-neutral-100 mb-4">
-            <div className="flex items-center gap-2 justify-center">
-              <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
-              <span className="font-bold text-primary">VỊ TRÍ: Dãy B - Phòng 203</span>
-            </div>
-          </div>
+      
 
-          {/* Map placeholder */}
-          <div className="bg-background-primary rounded-2xl p-4 shadow-card border border-neutral-100 mb-4">
-            <div className="relative bg-accent-lighter rounded-xl h-40 flex items-center justify-center overflow-hidden">
-              {/* Navigation arrow */}
-              <div className="text-accent">
-                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                </svg>
-              </div>
-              <span className="absolute top-2 right-2 text-xs bg-background-primary px-2 py-1 rounded-full shadow-sm">
-                Bản đồ khuôn viên
-              </span>
-            </div>
-            
-            <div className="mt-4">
-              <h3 className="font-bold text-neutral-900 text-center mb-2 font-heading">BẢN ĐỒ HƯỚNG DẪN</h3>
-              <div className="flex items-center justify-center gap-6 text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-primary" />
-                  <span>Vị trí bạn</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full bg-success" />
-                  <span>Phòng 205</span>
-                </div>
-              </div>
-              <p className="text-center text-xs text-neutral-400 mt-2">
-                Khoảng cách: ~80m<br />
-                Thời gian đi bộ: 3 phút
-              </p>
-            </div>
-          </div>
-
+        <img src="/Khu vực Định hướng nghề .png" alt="Hướng dẫn đến phòng định hướng nghề nghiệp" className="w-full object-cover  mb-6 shadow-card" />
           {/* Instructions */}
           <div className="bg-background-primary rounded-2xl p-4 shadow-card border border-neutral-100">
             <h3 className="font-bold text-neutral-900 mb-3 flex items-center gap-2 font-heading">

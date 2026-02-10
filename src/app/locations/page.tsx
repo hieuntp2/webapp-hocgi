@@ -5,15 +5,7 @@ import { useRouter } from 'next/navigation';
 import { LocationCard } from '@/components/ui';
 import { Header } from '@/components/layout/Header';
 
-const locations = [
-  { id: '1', name: 'Sân khấu chính', description: 'Khu vực biểu diễn và talk show' },
-  { id: '2', name: 'Khu vực gian hàng trường', description: 'Tư vấn tuyển sinh các trường' },
-  { id: '3', name: 'Khu trắc nghiệm ONET', description: 'Làm bài test định hướng nghề nghiệp' },
-  { id: '4', name: 'Khu tư vấn tâm lý', description: 'Gặp gỡ chuyên gia tâm lý' },
-  { id: '5', name: 'Khu ẩm thực', description: 'Các gian hàng ăn uống' },
-  { id: '6', name: 'Khu trò chơi', description: 'Các hoạt động giải trí' },
-  { id: '7', name: 'Sân khấu âm nhạc', description: 'Biểu diễn âm nhạc và giao lưu' },
-];
+
 
 const quickAccess = [
   {
@@ -60,16 +52,8 @@ export default function LocationsPage() {
       <Header title="Bản đồ & Địa điểm" onBack={() => router.push('/dashboard')} />
       
       <div className="px-4 py-6">
-        {/* Map placeholder */}
-        <div className="h-48 bg-gradient-to-br from-primary-lighter to-accent-lighter rounded-2xl flex items-center justify-center mb-6 shadow-card">
-          <div className="text-center">
-            <svg className="w-12 h-12 mx-auto text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-            </svg>
-            <p className="text-sm text-primary mt-2 font-medium">Bản đồ sự kiện</p>
-            <p className="text-xs text-neutral-500">Nhấn để xem chi tiết</p>
-          </div>
-        </div>
+        {/* Map */}
+        <img src="/maptoantruong.jpg" alt="Bản đồ toàn trường" className="w-full object-cover rounded-2xl mb-6 shadow-card" />
 
         {/* Quick Access */}
         <div className="mb-6">
@@ -90,19 +74,7 @@ export default function LocationsPage() {
           </div>
         </div>
 
-        {/* All Locations */}
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900 mb-3">Tất cả địa điểm</h2>
-          <div className="space-y-3">
-            {locations.map((location) => (
-              <LocationCard
-                key={location.id}
-                location={location}
-                //onClick={() => router.push(`/locations/${location.id}`)}
-              />
-            ))}
-          </div>
-        </div>
+       
       </div>
     </div>
   );
