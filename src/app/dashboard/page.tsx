@@ -362,32 +362,32 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Success Message */}
+      {/* Success Message Popup */}
       {showSuccessMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[80] animate-bounce">
-          <div className="bg-gradient-to-br from-green-400 to-green-600 text-white rounded-2xl shadow-2xl p-6 max-w-sm mx-4 border-2 border-green-200">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth="3"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setShowSuccessMessage(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-green-200 animate-scale-in">
+            <div className="flex flex-col items-center text-center">
+              {/* Green Checkmark Icon */}
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-12 h-12 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="3"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">Thành công!</h3>
-                <p className="text-sm text-white/90">{successMessage}</p>
-              </div>
+              
+              {/* Text Content */}
+              <h3 className="font-bold text-2xl text-green-700 mb-2">Thành công!</h3>
+              <p className="text-base text-gray-700 font-medium">{successMessage}</p>
             </div>
           </div>
         </div>

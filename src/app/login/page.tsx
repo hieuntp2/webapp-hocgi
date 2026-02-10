@@ -132,7 +132,7 @@ export default function LoginPage() {
             isLoading={isLoading}
             onClick={handleSsoLogin}
           >
-            Đăng nhập bằng SSO
+            Đăng nhập
           </Button>
         </div>
       </div>
