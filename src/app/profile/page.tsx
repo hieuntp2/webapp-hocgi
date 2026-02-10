@@ -10,19 +10,37 @@ import { useAuthFromToken } from '@/hooks/useAuth';
 export default function ProfilePage() {
   const router = useRouter();
   const { logout } = useApp();
-  const { user, progress } = useAuthFromToken();
+  const { user } = useAuthFromToken();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     logout();
-    router.push('/');
+    const ssoLogoutUrl = process.env.NEXT_PUBLIC_SSO_LOGOUT_URL;
+    const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL;
+    
+    console.log('SSO Logout URL:', ssoLogoutUrl);
+    console.log('Return URL:', returnUrl);
+    console.log('Full redirect:', `${ssoLogoutUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`);
+    
+    window.location.href = `${ssoLogoutUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`;
   };
 
-  
-   
+  const handleTestHistory = () => {
+    window.open('https://hocgi.vn/tu-van-tuyen-sinh/lich-su', '_blank');
+  };
 
-
-  const totalProgress = ((progress?.careerProgress || 0) + (progress?.majorProgress || 0) + (progress?.schoolProgress || 0)) / 9 * 100;
+  const menuItems = [
+    {
+      id: 'test-history',
+      title: 'Lịch sử trắc nghiệm',
+      icon: (
+        <svg className="w-5 h-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      onClick: handleTestHistory,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background-secondary">
@@ -44,10 +62,27 @@ export default function ProfilePage() {
                 <p className="text-sm text-neutral-500">{user?.school || 'Chưa cập nhật'}</p>
               </div>
             </div>
-
-           
           </CardContent>
         </Card>
+
+        {/* Menu Items */}
+        <div className="space-y-2 mb-6">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={item.onClick}
+              className="w-full flex items-center gap-3 p-4 bg-background-primary rounded-xl shadow-card border border-neutral-100 active:scale-[0.98] transition-all duration-base hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                {item.icon}
+              </div>
+              <span className="flex-1 text-left font-medium text-neutral-700">{item.title}</span>
+              <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          ))}
+        </div>
 
         {/* Social Links */}
         <Card className="mb-6">
@@ -136,8 +171,6 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-
-        
 
         {/* Logout Button */}
         <Button

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
+import { checkInService } from '@/services/api/checkIn';
 
 // Popular majors for quick select
 const popularMajors = [
@@ -40,6 +41,32 @@ export default function MajorPage() {
   const [step, setStep] = useState<Step>('initial');
   const [selectedMajor, setSelectedMajor] = useState('');
   const [customMajor, setCustomMajor] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load existing data on mount
+  useEffect(() => {
+    const loadCustomFields = async () => {
+      try {
+        const response = await checkInService.getCustomFields();
+        if (response.success && response.data) {
+          const customMajorValue = response.data.customMajor || '';
+          setCustomMajor(customMajorValue);
+          // Check if customMajor matches any in allMajors dropdown
+          const matchedMajor = allMajors.find(m => m.label === customMajorValue);
+          if (matchedMajor) {
+            setSelectedMajor(matchedMajor.value);
+            setCustomMajor('');
+          }
+        }
+      } catch (err) {
+        // Ignore error - just means no data yet
+        console.log('No custom fields data yet');
+      }
+    };
+
+    loadCustomFields();
+  }, []);
 
   // Handle quick select popular major
   const handleQuickSelect = (majorName: string) => {
@@ -49,6 +76,30 @@ export default function MajorPage() {
 
   // Validation: Chỉ cần 1 trong 2 được điền
   const isValid = selectedMajor || customMajor.trim();
+
+  // Handle confirm major selection
+  const handleConfirmMajor = async () => {
+    if (!isValid) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Send either the selected major label or custom major
+      const majorValue = selectedMajor 
+        ? allMajors.find(m => m.value === selectedMajor)?.label || selectedMajor
+        : customMajor.trim();
+
+      await checkInService.setCustomMajor({
+        customMajor: majorValue,
+      });
+      setStep('meet-professionals');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra. Vui lòng thử lại!');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Step 1: Initial - Ask if already chosen
   if (step === 'initial') {
@@ -199,18 +250,40 @@ export default function MajorPage() {
               className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-background-primary focus:outline-none focus:border-accent transition-colors duration-base"
             />
           </div>
+
+          {/* Error message */}
+          {error && (
+            <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200">
+              <p className="text-red-600 text-sm flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Bottom CTA - Accent button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background-primary border-t border-neutral-100">
           <button
-            onClick={() => setStep('meet-professionals')}
-            disabled={!isValid}
+            onClick={handleConfirmMajor}
+            disabled={!isValid || isLoading}
             className={`w-full py-4 rounded-xl text-white font-bold transition-colors duration-base ${
-              isValid ? 'gradient-primary hover:opacity-90 shadow-warm' : 'bg-neutral-300 cursor-not-allowed'
+              isValid && !isLoading ? 'gradient-primary hover:opacity-90 shadow-warm' : 'bg-neutral-300 cursor-not-allowed'
             }`}
           >
-            XÁC NHẬN NGÀNH ĐÃ CHỌN
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                ĐANG LƯU...
+              </span>
+            ) : (
+              'XÁC NHẬN NGÀNH ĐÃ CHỌN'
+            )}
           </button>
         </div>
       </div>

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
+import { checkInService } from '@/services/api/checkIn';
 
 // Danh sách lĩnh vực
 const fields = [
@@ -29,14 +30,51 @@ export default function CareerListPage() {
   const [selectedField, setSelectedField] = useState('');
   const [customCareer, setCustomCareer] = useState('');
   const [showSuggestion, setShowSuggestion] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleContinue = () => {
-    setShowSuggestion(true);
+  // Load existing data on mount
+  useEffect(() => {
+    const loadCustomFields = async () => {
+      try {
+        const response = await checkInService.getCustomFields();
+        if (response.success && response.data) {
+          setSelectedField(response.data.customFieldIds || '');
+          setCustomCareer(response.data.customJob || '');
+        }
+      } catch (err) {
+        // Ignore error - just means no data yet
+        console.log('No custom fields data yet');
+      }
+    };
+
+    loadCustomFields();
+  }, []);
+
+  const handleContinue = async () => {
+    if (!isValid) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await checkInService.setCustomField({
+        customFieldIds: selectedField,
+        customJob: customCareer.trim(),
+      });
+      setShowSuggestion(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra. Vui lòng thử lại!');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDoTest = () => {
-    // TODO: Gọi API ONET sau
-    alert('Tính năng làm bài test ONET sẽ được cập nhật sớm!');
+    const testUrl = process.env.NEXT_PUBLIC_TEST_URL || '';
+    const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL || '';
+    
+    window.location.href = `${testUrl}?returnUrl=${encodeURIComponent(returnUrl)}/dashboard`;
   };
 
   const handleSkipTest = () => {
@@ -173,18 +211,40 @@ export default function CareerListPage() {
             className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-background-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-base"
           />
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+            <p className="text-red-600 text-sm flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background-primary border-t border-neutral-100">
         <button
           onClick={handleContinue}
-          disabled={!isValid}
+          disabled={!isValid || isLoading}
           className={`w-full py-4 rounded-xl text-white font-bold transition-all duration-base ${
-            isValid ? 'bg-primary hover:bg-primary-dark' : 'bg-neutral-300 cursor-not-allowed'
+            isValid && !isLoading ? 'bg-primary hover:bg-primary-dark' : 'bg-neutral-300 cursor-not-allowed'
           }`}
         >
-          TIẾP THEO →
+          {isLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              ĐANG LƯU...
+            </span>
+          ) : (
+            'TIẾP THEO →'
+          )}
         </button>
       </div>
     </div>

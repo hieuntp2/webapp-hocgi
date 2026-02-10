@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { checkInService } from '@/services/api';
@@ -64,6 +64,38 @@ export default function PsychologyPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('questions');
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load saved answers on mount
+  useEffect(() => {
+    const loadSavedAnswers = async () => {
+      try {
+        const response = await checkInService.getPsychologicalQuestions();
+        if (response.success && response.data) {
+          // Parse the JSON string - data is already the JSON string
+          const savedAnswers: Record<string, number> = JSON.parse(response.data);
+          
+          // Map question text back to question IDs
+          const mappedAnswers: Record<number, number> = {};
+          Object.entries(savedAnswers).forEach(([questionText, value]) => {
+            const question = questions.find(q => q.question === questionText);
+            if (question) {
+              mappedAnswers[question.id] = value;
+            }
+          });
+          
+          setAnswers(mappedAnswers);
+          console.log('Loaded saved answers:', mappedAnswers);
+        }
+      } catch (error) {
+        console.error('Failed to load saved psychological answers:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSavedAnswers();
+  }, []);
 
   const handleAnswer = (questionId: number, value: number) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -113,6 +145,18 @@ export default function PsychologyPage() {
 
   // Step 1: All questions on one page with Likert scale
   if (step === 'questions') {
+    // Show loading state
+    if (isLoading) {
+      return (
+        <div className="min-h-screen bg-background-secondary flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-neutral-600">Đang tải...</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-background-secondary pb-32">
         <Header 

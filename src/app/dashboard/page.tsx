@@ -16,18 +16,28 @@ export default function DashboardPage() {
   const [userStatus, setUserStatus] = useState<UserStatus | null>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [, setScanStatus] = useState(0);
+  const [showSchoolDialog, setShowSchoolDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch user status and lucky number from API
   useEffect(() => {
     const fetchUserData = async () => {
+      setIsLoading(true);
       try {
         // Fetch user status
         const statusResponse = await progressService.getUserStatus();
         if (statusResponse.success && statusResponse.data) {
           setUserStatus(statusResponse.data);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch user status:', error);
+        // Check for 401 error
+        if (error?.response?.status === 401 || error?.status === 401) {
+          const ssoUrl = process.env.NEXT_PUBLIC_SSO_URL;
+          const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL;
+          window.location.href = `${ssoUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`;
+          return;
+        }
       }
 
       try {
@@ -36,8 +46,15 @@ export default function DashboardPage() {
         if (response.success && response.data?.order != null) {
           setLuckyNumber(String(response.data.order).padStart(4, '0'));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch lucky number:', error);
+        // Check for 401 error
+        if (error?.response?.status === 401 || error?.status === 401) {
+          const ssoUrl = process.env.NEXT_PUBLIC_SSO_URL;
+          const returnUrl = process.env.NEXT_PUBLIC_SSO_RETURN_URL;
+          window.location.href = `${ssoUrl}?returnUrl=${encodeURIComponent(returnUrl || '')}`;
+          return;
+        }
         // Fallback: generate from user id if available
         if (user?.luckyNumber) {
           setLuckyNumber(user.luckyNumber);
@@ -45,6 +62,8 @@ export default function DashboardPage() {
           const hash = user.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
           setLuckyNumber(String(hash % 10000).padStart(4, '0'));
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -93,7 +112,7 @@ export default function DashboardPage() {
       title: 'CHECK OUT',
       description: 'Hoàn thành và nhận quà',
       path: '/finish',
-      completed: false,
+      completed: userStatus?.isCheckOut || false,
       disabled: !allStepsCompleted,
     },
   ];
@@ -103,6 +122,13 @@ export default function DashboardPage() {
       alert('Bạn cần hoàn thành 3 bước trên.');
       return;
     }
+    
+    // Special handling for school selection
+    if (item.id === 'school') {
+      setShowSchoolDialog(true);
+      return;
+    }
+    
     router.push(item.path);
   };
 
@@ -183,6 +209,20 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative">
+      {/* Loading Spinner */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background-secondary/95 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative w-16 h-16">
+              {/* Spinner */}
+              <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin"></div>
+            </div>
+            <p className="text-neutral-600 font-medium">Đang tải...</p>
+          </div>
+        </div>
+      )}
+
       {/* Background Image */}
       <div 
         className="fixed inset-0 z-0"
@@ -242,6 +282,53 @@ export default function DashboardPage() {
           </button>
         </div>
       )}
+
+      {/* School Dialog */}
+      {showSchoolDialog && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSchoolDialog(false)}
+          />
+          <div className="relative bg-background-primary rounded-3xl p-6 shadow-2xl max-w-sm w-full transform transition-all">
+            {/* Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Content */}
+            <h3 className="text-xl font-bold text-neutral-900 text-center mb-2 font-heading">
+              Chọn Trường
+            </h3>
+            <p className="text-neutral-600 text-center mb-6 leading-relaxed">
+              Gặp Đại sứ sinh viên & quét mã QR của trường để hoàn thành bước này
+            </p>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowSchoolDialog(false);
+                  setShowScanner(true);
+                }}
+                className="w-full bg-gradient-to-r from-primary to-accent text-white font-semibold py-3 px-6 rounded-xl shadow-md active:scale-95 transition-all duration-base hover:shadow-lg"
+              >
+                Mở máy quét QR
+              </button>
+              <button
+                onClick={() => setShowSchoolDialog(false)}
+                className="w-full bg-neutral-100 text-neutral-700 font-semibold py-3 px-6 rounded-xl active:scale-95 transition-all duration-base hover:bg-neutral-200"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="px-4 pb-6">
         {/* Welcome Section */}
@@ -257,6 +344,17 @@ export default function DashboardPage() {
               <p className="text-sm text-neutral-500">Học sinh</p>
             </div>
           </div>
+
+          {/* QR Scanner Button */}
+          <button
+            onClick={() => setShowScanner(true)}
+            className="mt-4 w-full bg-gradient-to-r from-primary to-accent text-white font-semibold py-3 px-4 rounded-xl shadow-md active:scale-95 transition-all duration-base hover:shadow-lg flex items-center justify-center gap-2"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7a3 3 0 013-3h2m6 0h2a3 3 0 013 3v2m0 6v2a3 3 0 01-3 3h-2m-6 0H7a3 3 0 01-3-3v-2m0-6V7m6 4h4m-2-2v4" />
+            </svg>
+            <span>Quét mã QR</span>
+          </button>
 
         </div>
 

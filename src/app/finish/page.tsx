@@ -1,12 +1,50 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
+import { checkInService } from '@/services/api/checkIn';
 
 export default function FinishPage() {
   const router = useRouter();
-  const feedbackLink = 'https://forms.gle/example'; // Link sẽ được cập nhật sau
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const feedbackLink = 'https://docs.google.com/forms/d/e/1FAIpQLScDRIOJOXcTHIIX8a__-HTZFHKosYy7mE4cYUBff2Y85YaVDw/viewform?fbclid=IwY2xjawP3zZhleHRuA2FlbQIxMABicmlkETF3dWFXMGFZcjlQVHdOQ3F3c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHo8bC0RNUjjJB7BxUSGZZFba6wgAUYWxO0u4G9jDZ7ilOFoVoKwC5nL0VF5S_aem_o7ZgcTxKEZr6MO4iz-FpiQ';
+
+  useEffect(() => {
+    const fetchCheckoutStatus = async () => {
+      try {
+        const response = await checkInService.getIsCheckout();
+        if (response.success && response.data) {
+          setIsCheckout(response.data.isCheckout);
+        }
+      } catch (error) {
+        console.error('Error fetching checkout status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCheckoutStatus();
+  }, []);
+
+  const handleFeedbackClick = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await checkInService.postCheckout();
+      window.open(feedbackLink, '_blank', 'noopener,noreferrer');
+      // Update checkout status after successful checkout
+      setIsCheckout(true);
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('Có lỗi xảy ra khi checkout. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -36,18 +74,26 @@ export default function FinishPage() {
           </p>
         </div>
 
+        {/* Checkout Status Message */}
+        {!isLoading && isCheckout && (
+          <div className="mb-4 text-center">
+            <p className="text-2xl font-bold text-success">
+              Bạn Đã CheckOut
+            </p>
+          </div>
+        )}
+
         {/* Feedback Button */}
-        <a
-          href={feedbackLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-primary to-accent text-white rounded-xl font-bold text-center shadow-warm hover:shadow-lg active:scale-95 transition-all duration-base flex items-center justify-center gap-2"
+        <button
+          onClick={handleFeedbackClick}
+          disabled={isSubmitting || isLoading}
+          className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-primary to-accent text-white rounded-xl font-bold text-center shadow-warm hover:shadow-lg active:scale-95 transition-all duration-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
-          Feedback
-        </a>
+          {isSubmitting ? 'Đang xử lý...' : 'Feedback'}
+        </button>
 
         {/* Back to Dashboard */}
         <button

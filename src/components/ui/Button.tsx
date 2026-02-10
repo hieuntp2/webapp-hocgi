@@ -28,7 +28,7 @@ export function Button({
     secondary: 'bg-accent text-white hover:bg-accent-dark hover:shadow-warm hover:-translate-y-0.5',
     outline: 'bg-transparent text-primary border-2 border-primary hover:bg-primary-lighter hover:border-primary-dark',
     ghost: 'bg-transparent text-neutral-700 border border-neutral-300 hover:bg-background-secondary hover:border-accent-light hover:text-accent-dark',
-    gray: 'bg-neutral-300 text-white cursor-not-allowed',
+    gray: 'bg-neutral-300 text-white hover:bg-neutral-400 hover:-translate-y-0.5',
   };
 
   const sizes = {
@@ -37,7 +37,7 @@ export function Button({
     lg: 'px-8 py-4 text-lg',
   };
 
-  const isDisabled = disabled || isLoading || variant === 'gray';
+  const isDisabled = disabled || isLoading;
 
   return (
     <button

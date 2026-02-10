@@ -5,6 +5,7 @@ export interface UserStatus {
   checkStep1: boolean;
   checkStep2: boolean;
   checkStep3: boolean;
+  isCheckOut: boolean;
 }
 
 export const progressService = {
