@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Be_Vietnam_Pro, Montserrat } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { AppProvider } from '@/contexts/AppContext';
 
@@ -46,6 +47,20 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className={`${beVietnamPro.variable} ${montserrat.variable} font-sans`}>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-H7XC6HPX5T"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-H7XC6HPX5T');
+          `}
+        </Script>
+        
         <AppProvider>
           <main className="mobile-container min-h-screen bg-background-secondary">
             {children}

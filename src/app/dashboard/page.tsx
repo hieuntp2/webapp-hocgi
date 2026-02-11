@@ -84,6 +84,14 @@ export default function DashboardPage() {
         setIsLoading(true);
         setShowScanner(false);
         
+        // Check if QR matches finish page URL
+        if (scanResult === 'https://webapp.hocgi.vn/finish') {
+          router.push('/finish');
+          setScanResult(null);
+          setIsLoading(false);
+          return;
+        }
+        
         // Parse QR URL to get roomType and deskId
         const url = new URL(scanResult);
         const roomType = parseInt(url.searchParams.get('roomId') || '0');
