@@ -41,6 +41,28 @@ export interface UserCustomFieldsModel {
   customMajor: string;
 }
 
+export interface FieldItem {
+  id: string;
+  name: string;
+}
+
+export interface MajorItem {
+  id: string;
+  name: string;
+}
+
+export interface FieldScoreItem {
+  id: string;
+  name: string;
+}
+
+export interface UserSelectedCareersModel {
+  customFields: FieldItem[];
+  customJob: string;
+  selectedMajors: MajorItem[];
+  fieldScores: FieldScoreItem[];
+}
+
 export const checkInService = {
   // Get current user's check-in info
   async getCurrentUserCheckIn(): Promise<ApiResponse<UserCheckInInfo>> {
@@ -85,5 +107,10 @@ export const checkInService = {
   // Post checkout
   async postCheckout(): Promise<ApiResponse<null>> {
     return apiClient.patch('/UserCheckIn/offline-infor/checkout');
+  },
+
+  // Get selected careers info
+  async getSelectedCareers(): Promise<ApiResponse<UserSelectedCareersModel>> {
+    return apiClient.get('/UserCheckIn/offline-infor/selected-careers');
   },
 };
