@@ -29,30 +29,32 @@ export default function FinishPage() {
     fetchCheckoutStatus();
   }, []);
 
-  const handleFeedbackClick = async () => {
+  const handleFeedbackClick = () => {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    try {
-      await checkInService.postCheckout();
-      window.open(feedbackLink, '_blank', 'noopener,noreferrer');
-      // Update checkout status after successful checkout
-      setIsCheckout(true);
-    } catch (error) {
-      console.error('Error during checkout:', error);
-      alert('Có lỗi xảy ra khi checkout. Vui lòng thử lại.');
-    } finally {
-      setIsSubmitting(false);
-    }
+
+    // Call checkout API in the background (fire-and-forget)
+    // Link opening is handled natively by the <a href> tag
+    checkInService.postCheckout()
+      .then(() => {
+        setIsCheckout(true);
+      })
+      .catch((error) => {
+        console.error('Error during checkout:', error);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header 
-        title="Hoàn thành" 
+      <Header
+        title="Hoàn thành"
         onBack={() => router.push('/dashboard')}
       />
-      
+
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
         {/* Success Icon */}
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center mb-6 shadow-lg animate-fade-in">
@@ -83,17 +85,19 @@ export default function FinishPage() {
           </div>
         )}
 
-        {/* Feedback Button */}
-        <button
+        {/* Feedback Link */}
+        <a
+          href={feedbackLink}
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={handleFeedbackClick}
-          disabled={isSubmitting || isLoading}
-          className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-primary to-accent text-white rounded-xl font-bold text-center shadow-warm hover:shadow-lg active:scale-95 transition-all duration-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`w-full max-w-md px-8 py-4 bg-gradient-to-r from-primary to-accent text-white rounded-xl font-bold text-center shadow-warm hover:shadow-lg active:scale-95 transition-all duration-base flex items-center justify-center gap-2 no-underline ${(isSubmitting || isLoading) ? 'opacity-50 pointer-events-none' : ''}`}
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
           {isSubmitting ? 'Đang xử lý...' : 'Feedback'}
-        </button>
+        </a>
 
         {/* Back to Dashboard */}
         <button
