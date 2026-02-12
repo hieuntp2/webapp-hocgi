@@ -3,15 +3,31 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { checkInService } from '@/services/api/checkIn';
+import { useApp } from '@/contexts/AppContext';
 
 
 function CheckInHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { state } = useApp();
   const [message, setMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!state.isLoading && !state.isAuthenticated) {
+      // Get current URL with all params
+      const currentUrl = `/buoc-hai?${searchParams.toString()}`;
+      // Redirect to login with redirectUrl
+      router.push(`/login?redirectUrl=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
+    // Skip check-in if still loading auth state
+    if (state.isLoading) {
+      return;
+    }
+
     const performCheckIn = async () => {
       // Get roomId and tableId from URL parameters
       const roomId = searchParams.get('roomId');
@@ -69,7 +85,7 @@ function CheckInHandler() {
     };
 
     performCheckIn();
-  }, [searchParams, router]);
+  }, [searchParams, router, state.isLoading, state.isAuthenticated]);
 
   if (isLoading) {
     return (

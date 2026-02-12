@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui";
 import { Header } from "@/components/layout/Header";
 import { useApp } from "@/contexts/AppContext";
@@ -13,16 +13,44 @@ const SSO_RETURN_URL = `${process.env.NEXT_PUBLIC_SSO_RETURN_URL}/login`;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, state } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [parsedRedirectUrl, setParsedRedirectUrl] = useState<string | null>(null);
+  
+  // Fallback to searchParams hook, but will be overridden by parsed value
+  const redirectUrl = parsedRedirectUrl ?? searchParams.get('redirectUrl');
 
-  // Redirect to dashboard if already authenticated
+  // Redirect to dashboard or redirectUrl if already authenticated
   useEffect(() => {
     if (!state.isLoading && state.isAuthenticated) {
-      router.replace('/dashboard');
+      const targetUrl = redirectUrl || '/dashboard';
+      router.replace(targetUrl);
     }
-  }, [state.isLoading, state.isAuthenticated, router]);
+  }, [state.isLoading, state.isAuthenticated, router, redirectUrl]);
+
+  // Parse redirectUrl from URL (handle edge case with multiple "?" characters)
+  useEffect(() => {
+    const normalizeSearchString = (search: string) => {
+      if (!search || !search.startsWith('?')) return search;
+      
+      // Remove first "?" and split by remaining "?"
+      const withoutFirstQuestion = search.slice(1);
+      const parts = withoutFirstQuestion.split('?');
+      
+      // Join back with "&" instead of "?"
+      return parts.length > 1 ? '?' + parts.join('&') : search;
+    };
+
+    const normalizedSearch = normalizeSearchString(window.location.search);
+    const params = new URLSearchParams(normalizedSearch);
+    const parsed = params.get('redirectUrl');
+    
+    if (parsed) {
+      setParsedRedirectUrl(parsed);
+    }
+  }, []);
 
   useEffect(() => {
     const readParams = (raw: string) => {
@@ -41,7 +69,30 @@ export default function LoginPage() {
       return { token, email, fullName, userId };
     };
 
-    const searchParams = readParams(window.location.search);
+    // Normalize URL search string - handle edge case with multiple "?" characters
+    // Example: ?redirectUrl=%2Fbuoc-hai%3FroomId%3D3?accessToken=xxx
+    // Should be: ?redirectUrl=%2Fbuoc-hai%3FroomId%3D3&accessToken=xxx
+    const normalizeSearchString = (search: string) => {
+      if (!search || !search.startsWith('?')) return search;
+      
+      // Remove first "?" and split by remaining "?"
+      const withoutFirstQuestion = search.slice(1);
+      const parts = withoutFirstQuestion.split('?');
+      
+      // Join back with "&" instead of "?"
+      return parts.length > 1 ? '?' + parts.join('&') : search;
+    };
+
+    const normalizedSearch = normalizeSearchString(window.location.search);
+    const searchParams = readParams(normalizedSearch);
+    
+    // Also parse and store redirectUrl for later use
+    const urlParams = new URLSearchParams(normalizedSearch);
+    const parsedRedirect = urlParams.get('redirectUrl');
+    if (parsedRedirect && !parsedRedirectUrl) {
+      setParsedRedirectUrl(parsedRedirect);
+    }
+    
     const hashParams = window.location.hash.startsWith("#")
       ? readParams(window.location.hash.slice(1))
       : { token: null, email: null, fullName: null, userId: null };
@@ -63,8 +114,10 @@ export default function LoginPage() {
 
     login(mergedUser, token || undefined);
 
-    router.replace("/dashboard");
-  }, [login, router]);
+    // Redirect to the original URL or dashboard
+    const targetUrl = parsedRedirect || "/dashboard";
+    router.replace(targetUrl);
+  }, [login, router, parsedRedirectUrl]);
 
   const handleSsoLogin = () => {
     if (!SSO_URL) {
@@ -75,7 +128,12 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    const returnUrl = SSO_RETURN_URL || window.location.origin;
+    // Build return URL with redirectUrl if present
+    let returnUrl = SSO_RETURN_URL || window.location.origin;
+    if (redirectUrl) {
+      returnUrl = `${returnUrl}?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+    }
+    
     const url = `${SSO_URL}?returnUrl=${encodeURIComponent(returnUrl)}`;
     window.location.href = url;
   };
